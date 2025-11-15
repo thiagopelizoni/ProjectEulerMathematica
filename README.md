@@ -6,3 +6,4 @@
 
 * [Problem 1](https://projecteuler.net/problem=1) | [Solution](src/problem_001.mathematica)
 * [Problem 2](https://projecteuler.net/problem=2) | [Solution](src/problem_002.mathematica)
+* [Problem 2](https://projecteuler.net/problem=3) | [Solution](src/problem_003.mathematica)
