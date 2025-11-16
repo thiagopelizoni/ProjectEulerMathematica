@@ -8,3 +8,4 @@
 * [Problem 2](https://projecteuler.net/problem=2) | [Solution](src/problem_002.mathematica)
 * [Problem 3](https://projecteuler.net/problem=3) | [Solution](src/problem_003.mathematica)
 * [Problem 4](https://projecteuler.net/problem=4) | [Solution](src/problem_004.mathematica)
+* [Problem 5](https://projecteuler.net/problem=5) | [Solution](src/problem_005.mathematica)
