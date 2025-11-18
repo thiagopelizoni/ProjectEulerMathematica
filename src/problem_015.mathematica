@@ -100,6 +100,5 @@ latticePaths[n_Integer?NonNegative] := Module[
   Binomial[2*n, n]
 ]
 
-(* Calculate the number of lattice paths for a 20×20 grid.
-   Expected answer: 137846528820 *)
+(* Calculate the number of lattice paths for a 20×20 grid. *)
 latticePaths[20]
