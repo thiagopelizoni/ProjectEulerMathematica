@@ -59,7 +59,7 @@
       - For each fixed a, b ranges from a up to (S - a - 1). We start b at a to
         favor the condition a <= b (which is consistent with a < b < c).
       - For each pair (a, b), set:
-            c = S - a - b.
+            c = S - a - b;
         This ensures:
             a + b + c = S.
       - Then we test the Pythagorean condition:
@@ -97,27 +97,32 @@ pythagoreanTripletProduct[sumOfTriplet_Integer?Positive] := Module[
     a, b, c
   },
   
-  (* Outer loop: try all possible values of a from 1 to sumOfTriplet - 1. *)
-  Do[
-    (* Inner loop: for each a, try b from a up to sumOfTriplet - a - 1.
-       Starting b at a is consistent with the condition a <= b < c. *)
+  (* Use Catch/Throw pattern to enable early return from nested loops.
+     When a valid triplet is found, Throw breaks out immediately. *)
+  Catch[
+    (* Outer loop: try all possible values of a from 1 to sumOfTriplet - 1. *)
     Do[
-      (* c is determined uniquely from the sum constraint a + b + c = sumOfTriplet. *)
-      c = sumOfTriplet - a - b;
-      
-      (* Check Pythagorean condition a^2 + b^2 = c^2. *)
-      If[a^2 + b^2 == c^2,
-        (* Once a valid triplet is found, return the product abc. *)
-        Return[a*b*c]
+      (* Inner loop: for each a, try b from a up to sumOfTriplet - a - 1.
+         Starting b at a is consistent with the condition a <= b < c. *)
+      Do[
+        (* c is determined uniquely from the sum constraint a + b + c = sumOfTriplet. *)
+        c = sumOfTriplet - a - b;
+        
+        (* Check Pythagorean condition a^2 + b^2 = c^2. *)
+        If[a^2 + b^2 == c^2,
+          (* Once a valid triplet is found, throw the product abc.
+             This immediately exits both loops and returns from the Module. *)
+          Throw[a*b*c]
+        ],
+        {b, a, sumOfTriplet - a - 1}
       ],
-      {b, a, sumOfTriplet - a - 1}
-    ],
-    {a, 1, sumOfTriplet - 1}
-  ];
-  
-  (* If no triplet was found (which does not happen for sumOfTriplet = 1000),
-     we return $Failed as a symbolic indication of failure. *)
-  $Failed
+      {a, 1, sumOfTriplet - 1}
+    ];
+    
+    (* If no triplet was found (which does not happen for sumOfTriplet = 1000),
+       we return $Failed as a symbolic indication of failure. *)
+    $Failed
+  ]
 ]
 
 pythagoreanTripletProduct[1000]
