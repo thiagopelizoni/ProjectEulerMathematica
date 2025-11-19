@@ -27,3 +27,4 @@
 * [Problem 21](https://projecteuler.net/problem=21) | [Solution](src/problem_021.mathematica)
 * [Problem 22](https://projecteuler.net/problem=22) | [Solution](src/problem_022.mathematica)
 * [Problem 23](https://projecteuler.net/problem=23) | [Solution](src/problem_023.mathematica)
+* [Problem 24](https://projecteuler.net/problem=24) | [Solution](src/problem_024.mathematica)
