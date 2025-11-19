@@ -32,3 +32,4 @@
 * [Problem 26](https://projecteuler.net/problem=26) | [Solution](src/problem_026.mathematica)
 * [Problem 27](https://projecteuler.net/problem=27) | [Solution](src/problem_027.mathematica)
 * [Problem 28](https://projecteuler.net/problem=28) | [Solution](src/problem_028.mathematica)
+* [Problem 29](https://projecteuler.net/problem=29) | [Solution](src/problem_029.mathematica)
