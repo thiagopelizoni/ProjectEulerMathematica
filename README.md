@@ -37,3 +37,4 @@
 * [Problem 31](https://projecteuler.net/problem=31) | [Solution](src/problem_031.mathematica)
 * [Problem 32](https://projecteuler.net/problem=32) | [Solution](src/problem_032.mathematica)
 * [Problem 33](https://projecteuler.net/problem=33) | [Solution](src/problem_033.mathematica)
+* [Problem 34](https://projecteuler.net/problem=34) | [Solution](src/problem_034.mathematica)
