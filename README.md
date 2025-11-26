@@ -70,3 +70,4 @@ This project is a transcription to Wolfram Mathematica based on the problems alr
 * [Problem 64](https://projecteuler.net/problem=64) | [Solution](src/problem_064.mathematica)
 * [Problem 65](https://projecteuler.net/problem=65) | [Solution](src/problem_065.mathematica)
 * [Problem 66](https://projecteuler.net/problem=66) | [Solution](src/problem_066.mathematica)
+* [Problem 69](https://projecteuler.net/problem=69) | [Solution](src/problem_069.mathematica)
