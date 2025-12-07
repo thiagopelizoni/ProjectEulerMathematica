@@ -81,3 +81,4 @@ This project is a transcription to Wolfram Mathematica based on the problems alr
 * [Problem 77](https://projecteuler.net/problem=77) | [Solution](src/problem_077.mathematica)
 * [Problem 78](https://projecteuler.net/problem=78) | [Solution](src/problem_078.mathematica)
 * [Problem 79](https://projecteuler.net/problem=79) | [Solution](src/problem_079.mathematica)
+* [Problem 80](https://projecteuler.net/problem=80) | [Solution](src/problem_080.mathematica)
