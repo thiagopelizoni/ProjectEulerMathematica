@@ -72,16 +72,13 @@
 
 solve[] := Module[{nCores, upperBound, countForZ, counts, cumulativeCounts, resultM},
   nCores = $ProcessorCount;
-  upperBound = 2000; (* Heuristic bound; standard solution is around 1818 *)
+  upperBound = 2000;
 
-  (* Function to calculate number of integer shortest paths where largest dimension is z *)
   countForZ = Function[{z},
     Module[{count = 0, root},
-      (* Iterate s = x + y. Range is 2 to 2z. *)
       Do[
         root = Sqrt[z^2 + s^2];
         If[IntegerQ[root],
-          (* If valid s, add number of pairs (x,y) *)
           If[s <= z,
             count += Floor[s/2],
             count += (z - Ceiling[s/2] + 1)
@@ -93,20 +90,16 @@ solve[] := Module[{nCores, upperBound, countForZ, counts, cumulativeCounts, resu
     ]
   ];
 
-  (* Compute counts for each z from 1 to upperBound in parallel *)
   counts = ParallelTable[
     countForZ[z],
     {z, 1, upperBound},
     Method -> "CoarsestGrained"
   ];
 
-  (* Calculate cumulative sum *)
   cumulativeCounts = Accumulate[counts];
 
-  (* Find the first M where the count exceeds 1,000,000 *)
   resultM = FirstPosition[cumulativeCounts, x_ /; x > 1000000];
 
-  (* FirstPosition returns {index}, and since z starts at 1, index is exactly M *)
   If[MissingQ[resultM],
     "UpperBound insufficient",
     resultM[[1]]
