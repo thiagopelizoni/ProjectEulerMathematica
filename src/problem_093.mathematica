@@ -1,101 +1,66 @@
 (*
-  Project Euler Problem 93: Arithmetic Expressions
-  URL: https://projecteuler.net/problem=093
+  Project Euler Problem 94: Almost Equilateral Triangles
+  URL: https://projecteuler.net/problem=094
 
   Problem Statement:
-  We are to consider sets of four distinct digits {a, b, c, d} chosen from 0 to 9. Using the arithmetic operations
-  (+ , -, *, /) and parentheses, we form expressions using each digit exactly once. We seek the set {a, b, c, d} that
-  produces the longest consecutive sequence of positive integers 1, 2, ..., n among its generated values. The answer
-  must be the concatenation of the digits of this optimal set in increasing order.
+  We are interested in "almost equilateral triangles" defined by having integer side lengths and integer area. These
+  triangles must have two sides of equal length 'a' and a third side 'c' that differs from 'a' by exactly 1 (i.e.,
+  c = a + 1 or c = a - 1). The goal is to find the sum of the perimeters of all such triangles whose perimeter does
+  not exceed 1,000,000,000.
 
   Mathematical Analysis:
-  The problem space is small and amenable to exhaustive search.
-  1. There are Binomial[10, 4] = 210 ways to choose 4 distinct digits.
-  2. For each set of 4 digits, there are 4! = 24 permutations.
-  3. There are 4^3 = 64 ways to choose operators for the 3 positions between digits.
-  4. There are Catalan(3) = 5 distinct ways to group the operations with parentheses:
-     ((A op B) op C) op D, (A op (B op C)) op D, (A op B) op (C op D),
-     A op ((B op C) op D), A op (B op (C op D)).
+  Let the sides be (a, a, c). The semi-perimeter s is (2a + c)/2. The area A is given by Heron's formula:
+  A = Sqrt[s(s - a)^2 (s - c)].
+  For the area to be an integer, the expression under the square root must be a perfect square.
+  Substituting c = 2a +/- 1 leads to complex fractions, but using the altitude h simplifies the analysis.
+  The altitude h to base c satisfies 4h^2 = 4a^2 - c^2.
   
-  Total evaluations per set: 24 * 64 * 5 = 7680 expressions.
-  Total operations for the entire search: 210 * 7680 = 1,612,800 expressions.
-  This is trivial for modern CPUs (~10^6 ops). We can compute exact Rational values for all expressions to avoid
-  floating-point precision issues, filtering for positive Integers at the end.
+  Case 1: c = a + 1. 4h^2 = 4a^2 - (a + 1)^2 = (3a + 1)(a - 1).
+  Case 2: c = a - 1. 4h^2 = 4a^2 - (a - 1)^2 = (3a - 1)(a + 1).
+  
+  These conditions map to the Pell-like equation x^2 - 3y^2 = 1. The solutions to this Diophantine equation generate
+  the sequence of valid triangles. The valid perimeters P_k correspond to the recurrence derived from the Chebyshev
+  polynomials of the first kind, T_k(x). Specifically, the k-th valid perimeter can be calculated as:
+  P_k = 2 * ChebyshevT[k, 2] + 2 * (-1)^k.
+  
+  This sequence grows exponentially with a ratio of approximately 2 + Sqrt[3] (~3.73). Given the upper bound of 10^9,
+  the number of terms is very small (around 19 terms), making the problem computationally trivial O(log N).
 
   Parallelization Strategy:
-  The calculation for each set of 4 digits is independent. We can distribute the 210 sets across available processor
-  cores using `ParallelMap`. Inside each parallel task, we generate all target values, determine the length of the
-  consecutive sequence 1..n, and return the pair {sequence_length, digit_set}. Aggregation is performed by sorting
-  the results to find the maximum length.
+  Despite the small number of terms, we implement dynamic parallelism as requested. We first determine the maximum
+  index k (k_max) that satisfies P_k <= 10^9 using a fast sequential check (iterating until the limit is breached).
+  Then, we use `ParallelSum` to compute the sum of perimeters for k from 2 to k_max. The calculation for each k is
+  independent and O(1).
 
   Wolfram Language Implementation:
-  - Use `Subsets` to generate the 210 digit combinations.
-  - Use `Tuples` for operators and `Permutations` for digit ordering.
-  - Define the 5 template structures explicitly as pure functions or expressions.
-  - Use `Quiet` to suppress division-by-zero messages.
-  - Use `Rational` arithmetic (native to Wolfram Language) to ensure exactness.
-  - `solve[]` encapsulates the logic and returns the formatted string.
+  - Detect available cores using `$ProcessorCount`.
+  - Use a `While` loop to find the upper limit index `limitK`.
+  - Use `ParallelSum` with `Method -> "CoarsestGrained"` to sum the perimeters.
+  - `ChebyshevT` provides efficient access to the recurrence values without manual matrix exponentiation.
 *)
 
-solve[] := Module[{nCores, digitSets, operators, calcSequenceLength, results, bestSet},
+solve[] := Module[{maxPerimeter, limitK, nCores},
   nCores = $ProcessorCount;
+  maxPerimeter = 1000000000;
+
+  limitK = 2;
   
-  (* Generate all unique sets of 4 distinct digits *)
-  digitSets = Subsets[Range[0, 9], {4}];
-  
-  (* All combinations of 3 operators from {+, -, *, /} *)
-  operators = Tuples[{Plus, Subtract, Times, Divide}, 3];
-  
-  (* Function to compute the longest consecutive sequence 1..n for a given set of digits *)
-  (* This function is mapped in parallel over digitSets *)
-  calcSequenceLength = Function[{digits},
-    Module[{perms, values, validIntegers, maxN},
-      perms = Permutations[digits];
-      
-      (* Generate all values using permutations, operators, and grouping templates *)
-      values = Flatten @ Table[
-        With[{a = p[[1]], b = p[[2]], c = p[[3]], d = p[[4]],
-              op1 = ops[[1]], op2 = ops[[2]], op3 = ops[[3]]},
-          Quiet @ {
-            (* Template 1: ((a . b) . c) . d *)
-            op3[op2[op1[a, b], c], d],
-            (* Template 2: (a . (b . c)) . d *)
-            op3[op1[a, op2[b, c]], d],
-            (* Template 3: (a . b) . (c . d) *)
-            op2[op1[a, b], op3[c, d]],
-            (* Template 4: a . ((b . c) . d) *)
-            op1[a, op3[op2[b, c], d]],
-            (* Template 5: a . (b . (c . d)) *)
-            op1[a, op2[b, op3[c, d]]]
-          }
-        ],
-        {p, perms},
-        {ops, operators}
-      ];
-      
-      (* Filter for strictly positive integers *)
-      validIntegers = Union @ Select[values, IntegerQ[#] && # > 0 &];
-      
-      (* Calculate length of consecutive sequence starting from 1 *)
-      (* MapIndexed passes {value, {index}}; sequence holds if value == index *)
-      maxN = LengthWhile[
-        MapIndexed[{#1, #2[[1]]} &, Sort[validIntegers]], 
-        #[[1]] == #[[2]] &
-      ];
-      
-      {maxN, digits}
-    ]
+  While[
+    Module[{p},
+      p = 2 * ChebyshevT[limitK + 1, 2] + 2 * (-1)^(limitK + 1);
+      p <= maxPerimeter
+    ],
+    limitK++
   ];
 
-  (* Execute in parallel *)
-  results = ParallelMap[calcSequenceLength, digitSets, Method -> "CoarsestGrained"];
-  
-  (* Find the set with the maximum sequence length *)
-  (* Sort by length descending *)
-  bestSet = First @ SortBy[results, {-First[#] &}];
-  
-  (* Format output as string "abcd" *)
-  StringJoin[ToString /@ Sort[bestSet[[2]]]]
+  ParallelSum[
+    Module[{p},
+      p = 2 * ChebyshevT[k, 2] + 2 * (-1)^k;
+      p
+    ],
+    {k, 2, limitK},
+    Method -> "CoarsestGrained"
+  ]
 ];
 
 solve[]
