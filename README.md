@@ -98,3 +98,4 @@ This project is a transcription to Wolfram Mathematica based on the problems alr
 * [Problem 94](https://projecteuler.net/problem=94) | [Solution](src/problem_094.mathematica)
 * [Problem 95](https://projecteuler.net/problem=95) | [Solution](src/problem_095.mathematica)* [Problem 96](https://projecteuler.net/problem=96) | [Solution](src/problem_096.mathematica)
 * [Problem 97](https://projecteuler.net/problem=97) | [Solution](src/problem_097.mathematica)
+* [Problem 99](https://projecteuler.net/problem=99) | [Solution](src/problem_099.mathematica)
